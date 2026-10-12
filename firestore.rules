@@ -1,0 +1,14 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Anyone with the link can read and change notes; nothing else is writable.
+    match /notes/{id} {
+      allow read, delete: if true;
+      allow create, update: if request.resource.data.text is string
+        && request.resource.data.text.size() <= 200
+        && request.resource.data.sign is string
+        && request.resource.data.sign.size() <= 24
+        && request.resource.data.keys().hasOnly(['text','sign','color','x','y','rot','createdAt']);
+    }
+  }
+}
